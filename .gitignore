@@ -1,0 +1,61 @@
+# =========================
+# Android / Gradle
+# =========================
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+build/
+*/build/
+
+.gradle/
+.cxx/
+.externalNativeBuild/
+
+# =========================
+# Android Studio
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local config
+local.properties
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Kotlin / Java
+# =========================
+*.kotlin_module
+
+# =========================
+# Compose (safe defaults)
+# =========================
+.compose/
+
+
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/build
+/captures
+.externalNativeBuild
+.cxx
