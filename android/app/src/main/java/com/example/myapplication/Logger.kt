@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.util.Half.toFloat
 import android.util.Log
 import com.google.gson.Gson
@@ -12,8 +13,8 @@ import kotlin.system.measureTimeMillis
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-
-class Logger {
+import android.media.MediaPlayer
+class Logger(private val context: Context) {
     data class ProgressState(
         val message: String = "",
         val percentage: Float = 0f
@@ -77,7 +78,11 @@ class Logger {
         }
 
         emit(ProgressState("DETAILED FEEDBACK: $feedbackLogs", 1f))
-
+        val mediaPlayer = MediaPlayer.create(context, R.raw.progess_finished)
+        mediaPlayer.setOnCompletionListener {
+            it.release()
+        }
+        mediaPlayer.start()
     }
 
     /**

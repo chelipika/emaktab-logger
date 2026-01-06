@@ -41,19 +41,39 @@ import kotlinx.coroutines.launch // CRITICAL IMPORT
 import com.example.myapplication.Logger
 import kotlinx.coroutines.Dispatchers
 
+import android.content.Intent
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.media.SoundPool
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import java.io.File
+
+
+
 // TODO: add sound effect when 100%
 // TODO: fix dairy check error
 // TODO: automate login and password lists
-
+// TODO: ADD SELF UPDATE 🦅🦅🦅🦅🦅🦅🦅🦅🦅🦅🦅
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
                 // Note: We don't create geminiLogic here anymore.
         super.onCreate(savedInstanceState)
+
         setContent {
 
             MyApplicationTheme {
-                LoginScreen(Logger())
+                MyApp()
             }
         }
     }
@@ -62,82 +82,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(modifier: Modifier = Modifier) {
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
-
+    val context = LocalContext.current
     Surface(modifier) {
-        if (shouldShowOnboarding) {
-            OnboardingScreen(onContinuedClicked = { shouldShowOnboarding = false })
-        } else {
-
-            PromptBarScreen()
-        }
+        UpdateScreen()
+        LoginScreen(Logger(context))
     }
 }
 
 
-@Composable
-fun PromptBarScreen(modifier: Modifier = Modifier) {
-    // 1. SETUP STATE
-    // Stores what the user types
-    var userInput by remember { mutableStateOf("") }
-    // Stores the AI response
-    var aiResponse by remember { mutableStateOf("Result will appear here...") }
-    // Stores the loading state
-    var isLoading by remember { mutableStateOf(false) }
-
-    // 2. SETUP COROUTINE SCOPE
-    // This allows us to run suspend functions inside the Button onClick
-    val scope = rememberCoroutineScope()
-
-    // 3. SETUP LOGIC CLASS
-    // We remember this class so it isn't recreated on every recomposition
-    val geminiLogic = remember { GeminiLogic() }
-
-    val runLoginScript = remember { Logger() }
-
-    Column(modifier.padding(24.dp)) {
-
-        // Input Field
-        TextField(
-            value = userInput,
-            onValueChange = { userInput = it }, // Allows typing
-            label = { Text("Enter prompt") },
-            modifier = modifier.padding(vertical = 15.dp)
-        )
-
-        // Generate Button
-        Button(
-            enabled = !isLoading, // D
-
-            // isable button while loading
-            onClick = {
-                // Launch the Coroutine
-                scope.launch {
-                    isLoading = true
-                    aiResponse = "Loading..."
-
-                    try {
-                        val result = geminiLogic.generate_content(userInput)
-                        aiResponse = result ?: "No response"
-                    } catch (e: Exception) {
-                        aiResponse = "Error: ${e.localizedMessage}"
-                        Log.e("Gemini", "Error", e)
-                    } finally {
-                        isLoading = false
-                    }
-                }
-            }
-        ) {
-            Text(text = if (isLoading) "GENERATING..." else "GENERATE")
-        }
-
-        // Display Result
-        Text(
-            text = aiResponse,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-
-    }
-}
 @Composable
 fun LoginScreen(logger: Logger) {
     var aiResponse by remember { mutableStateOf("Tayyor...") }
@@ -146,7 +98,6 @@ fun LoginScreen(logger: Logger) {
 
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-
     // Auto-scroll logic
     LaunchedEffect(aiResponse) {
         scrollState.animateScrollTo(scrollState.maxValue)
@@ -210,27 +161,122 @@ fun LoginScreen(logger: Logger) {
     }
 }
 
-@Composable
-fun OnboardingScreen(onContinuedClicked: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Welcome to the Basics Codelab!")
-        Button(
-            modifier = Modifier.padding(vertical = 24.dp),
-            onClick = onContinuedClicked
-        ) {
-            Text("Continue")
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
+    val context = LocalContext.current
     MyApplicationTheme {
-        LoginScreen(Logger())
+        LoginScreen(Logger(context))
+    }
+}
+
+@Composable
+fun UpdateScreen() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val updater = remember { AppUpdater(context) }
+
+    // State
+    var updateAvailableUrl by remember { mutableStateOf<String?>(null) }
+    var isDownloading by remember { mutableStateOf(false) }
+    var downloadProgress by remember { mutableFloatStateOf(0f) }
+
+    // Current App Version
+    val currentVersionName = remember {
+        try {
+            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            // If versionName is null, default to "1.0"
+            pInfo.versionName ?: "1.0"
+        } catch (e: Exception) {
+            "1.0"
+        }
+    }
+
+
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Current Version: $currentVersionName")
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = {
+            scope.launch {
+                // Check for updates
+                val url = updater.checkForUpdate(currentVersionName)
+                if (url != null) {
+                    updateAvailableUrl = url
+                } else {
+                    Toast.makeText(context, "No update available", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }, enabled = !isDownloading) {
+            Text("Check for Updates")
+        }
+
+        // Show Dialog if update is found
+        if (updateAvailableUrl != null) {
+            AlertDialog(
+                onDismissRequest = { updateAvailableUrl = null },
+                title = { Text("Update Available") },
+                text = {
+                    if (isDownloading) {
+                        Column {
+                            Text("Downloading...")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(progress = { downloadProgress })
+                        }
+                    } else {
+                        Text("A new version is available. Download now?")
+                    }
+                },
+                confirmButton = {
+                    if (!isDownloading) {
+                        Button(onClick = {
+                            isDownloading = true
+                            scope.launch {
+                                // 1. Check Android 8+ Permission
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    if (!context.packageManager.canRequestPackageInstalls()) {
+                                        // Open Settings to allow install
+                                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                                        intent.data = Uri.parse("package:${context.packageName}")
+                                        context.startActivity(intent)
+                                        isDownloading = false // Reset UI
+                                        return@launch
+                                    }
+                                }
+
+                                // 2. Download
+                                val file = updater.downloadApk(updateAvailableUrl!!) { progress ->
+                                    downloadProgress = progress
+                                }
+
+                                // 3. Install
+                                if (file != null) {
+                                    updater.installApk(file)
+                                } else {
+                                    Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
+                                }
+                                isDownloading = false
+                                updateAvailableUrl = null // Close dialog
+                            }
+                        }) {
+                            Text("Update")
+                        }
+                    }
+                },
+                dismissButton = {
+                    if (!isDownloading) {
+                        TextButton(onClick = { updateAvailableUrl = null }) {
+                            Text("Cancel")
+                        }
+                    }
+                }
+            )
+        }
     }
 }

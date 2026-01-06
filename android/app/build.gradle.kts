@@ -13,15 +13,19 @@ android {
         applicationId = "com.example.myapplication"
         minSdk = 29
         targetSdk = 35 // Match compileSdk
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -41,7 +45,6 @@ android {
 
     applicationVariants.all {
         val variant = this
-        val versionName = "1.0.0-alpha"
         variant.outputs.map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }.forEach { output ->
             val name = "EmaktabLogger-v$versionName.apk"
             output.outputFileName = name
