@@ -60,10 +60,10 @@ import java.io.File
 
 
 
-// TODO: add sound effect when 100%
+// TODO: add sound effect when 100%✅✅✅✅✅✅✅
 // TODO: fix dairy check error
 // TODO: automate login and password lists
-// TODO: ADD SELF UPDATE 🦅🦅🦅🦅🦅🦅🦅🦅🦅🦅🦅
+// TODO: ADD SELF UPDATE 🦅🦅🦅🦅🦅🦅🦅🦅🦅🦅🦅✅✅✅✅✅✅✅
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
