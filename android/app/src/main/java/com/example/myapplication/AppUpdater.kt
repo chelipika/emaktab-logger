@@ -23,7 +23,7 @@ class AppUpdater(private val context: Context) {
 
     // REPLACE THESE WITH YOUR DETAILS
     // This calculates the URL automatically
-    private val UPDATE_URL = "https://api.github.com/repos/chelipika/eschoolloggerappupdate/releases/latest"
+    private val UPDATE_URL = "https://api.github.com/repos/chelipika/emaktab-logger/releases/latest"
 
     suspend fun checkForUpdate(currentVersionName: String): String? {
         return withContext(Dispatchers.IO) {
