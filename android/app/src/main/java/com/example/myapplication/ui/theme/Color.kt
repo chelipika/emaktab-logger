@@ -14,4 +14,7 @@ val Navy = Color(0xFF073042)
 val Blue = Color(0xFF85AFF4)
 val LightBlue = Color(0xFFD7EFFE)
 val Chartreuse = Color(0xFFEFF7CF)
+val DarkGray   = Color(0xFF0B0C0D)    // #0b0c0d
+val LightBg    = Color(0xFFF4F7FB)    // #F4F7FB
+val MintGreen  = Color(0xFF43C59E)    // #43C59E
 

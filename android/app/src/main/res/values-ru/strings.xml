@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Login Logger</string>
+    <string name="upload_btn">1. Загрузить Excel 📄</string>
+    <string name="start_btn">2. ЗАПУСТИТЬ 🚀</string>
+    <string name="running_btn">Выполняется...</string>
+    <string name="check_update">Обновить 🔄</string>
+    <string name="update_title">Доступно обновление</string>
+    <string name="update_msg">Найдена новая версия. Скачать?</string>
+    <string name="downloading">Загрузка...</string>
+    <string name="update_confirm">Обновить</string>
+    <string name="cancel">Отмена</string>
+    <string name="logs_default">Логи появятся здесь...</string>
+    <string name="excel_loaded">✅ Загружено %1$d пользователей</string>
+    <string name="excel_error">❌ Ошибка чтения Excel</string>
+    <string name="script_finished">✅ СКРИПТ ЗАВЕРШЕН.</string>
+    <string name="no_excel">Файл Excel не загружен</string>
+    <string name="parsing">Чтение файла...</string>
+    <string name="latest_version">Установлена последняя версия</string>
+    <string name="checking">Проверка...</string>
+</resources>

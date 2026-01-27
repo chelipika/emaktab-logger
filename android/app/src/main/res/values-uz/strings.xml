@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Login Logger</string>
+    <string name="upload_btn">1. Excel yuklash 📄</string>
+    <string name="start_btn">2. BOSHLASH 🚀</string>
+    <string name="running_btn">Bajarilmoqda...</string>
+    <string name="check_update">Yangilash 🔄</string>
+    <string name="update_title">Yangilanish mavjud</string>
+    <string name="update_msg">Yangi versiya topildi. Yuklab olinsinmi?</string>
+    <string name="downloading">Yuklanmoqda...</string>
+    <string name="update_confirm">Yangilash</string>
+    <string name="cancel">Bekor qilish</string>
+    <string name="logs_default">Loglar shu yerda chiqadi...</string>
+    <string name="excel_loaded">✅ %1$d ta foydalanuvchi yuklandi</string>
+    <string name="excel_error">❌ Excel o‘qishda xatolik</string>
+    <string name="script_finished">✅ SKRIPT YAKUNLANDI.</string>
+    <string name="no_excel">Excel fayl yuklanmagan</string>
+    <string name="parsing">O‘qilmoqda...</string>
+    <string name="latest_version">Eng so‘nggi versiya o‘rnatilgan</string>
+    <string name="checking">Tekshirilmoqda...</string>
+</resources>

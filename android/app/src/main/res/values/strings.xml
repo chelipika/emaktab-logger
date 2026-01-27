@@ -1,5 +1,20 @@
 <resources>
-    <string name="app_name">Emaktab Logger</string>
-    <string name="show_less">Show less</string>
-    <string name="show_more">Show more</string>
+    <string name="app_name">Login Logger</string>
+    <string name="upload_btn">1. Upload Excel File 📄</string>
+    <string name="start_btn">2. START LOGGER 🚀</string>
+    <string name="running_btn">Running...</string>
+    <string name="check_update">Check Update 🔄</string>
+    <string name="update_title">Update Available</string>
+    <string name="update_msg">New version found. Download now?</string>
+    <string name="downloading">Downloading...</string>
+    <string name="update_confirm">Update</string>
+    <string name="cancel">Cancel</string>
+    <string name="logs_default">Logs will appear here...</string>
+    <string name="excel_loaded">✅ Loaded %1$d users</string>
+    <string name="excel_error">❌ Error parsing Excel</string>
+    <string name="script_finished">✅ SCRIPT FINISHED.</string>
+    <string name="no_excel">No Excel file loaded</string>
+    <string name="parsing">Parsing Excel...</string>
+    <string name="latest_version">Latest version installed</string>
+    <string name="checking">Checking...</string>
 </resources>

@@ -13,13 +13,14 @@ android {
         applicationId = "com.example.myapplication"
         minSdk = 29
         targetSdk = 35 // Match compileSdk
-        versionCode = 2
-        versionName = "1.2"
+        versionCode = 3
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters += listOf("arm64-v8a")
         }
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -81,5 +82,14 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
+
+
+
+    // Excel Reading (Apache POI)
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
+
+    // MultiDex (Needed for large libraries like POI)
+    implementation("androidx.multidex:multidex:2.0.1")
 
 }
