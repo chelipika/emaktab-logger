@@ -58,7 +58,7 @@ To use the logger, prepare an Excel file with the following structure:
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/YourUsername/Emaktab-Logger.git
+    git clone https://github.com/chelipika/emaktab-logger.git
     ```
 2.  **Open in Android Studio**:
     *   File -> Open -> Select the project folder.
