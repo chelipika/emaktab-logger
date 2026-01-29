@@ -108,7 +108,7 @@ void loginIn(const std::string& username) {
         {"clientSecret", "C0A8880F-30CA-4877-ADD2-26ED9672EC93"},
         {"scope", "Schools,Relatives,EduGroups,Lessons,marks,EduWorks,Avatar"},
         {"username", username},
-        {"password", "111111"},
+        {"password", "111111"}, // becasue most of the stutents have same password, we dont use seperate variable for it like username
         {"agreeTerms", "false"}
     };
 
@@ -156,39 +156,8 @@ int main() {
     // CRITICAL: Initialize ONCE at the very start of main
     curl_global_init(CURL_GLOBAL_ALL);
 
-    std::vector<std::string> people = {"abdumalikovibrohim02",
+    std::vector<std::string> people = {"abdumalikovibrohim02", // here shold be login and passwords but becasue most of the stutents have same password only logins were included in the list
     "gabdurahimova0211201",
-    "mushtaryi",
-    "dilshoda.alijonova06",
-    "alimjonov_husan",
-    "fotima.alimjonova052",
-    "madina.ataboyeva1020",
-    "muhbubaxonaxmedova",
-    "akbarshoh_azimov",
-    "firdavsismoilov03201",
-    "jabbarovamubinabonu",
-    "kumishjalolova",
-    "jamoliddinovazarina",
-    "r.karimjonova0611201",
-    "sayyodbekkarimov",
-    "oisha.kasimova",
-    "marupjonovamubina",
-    "meliqulova_diyora",
-    "miramatjonov",
-    "muxriddinovabubakr",
-    "ortikovamubinaxon",
-    "aqidaraximjanova",
-    "s.mavludahon",
-    "tojidinovamalikaxon",
-    "nigina.tursunboyeva1",
-    "ziyoda.umarova300420",
-    "u_ziyoviddin",
-    "mubosherv",
-    "jahongirxamidilloyev",
-    "shaxnoza.rahimova102",
-    "azizbek.yunusov20072",
-    "mustafo.yunusov10201",
-    "ruhshona.yunusova082",
     "zahidjanov"}; // ... add the rest
 
     auto start = std::chrono::high_resolution_clock::now();
