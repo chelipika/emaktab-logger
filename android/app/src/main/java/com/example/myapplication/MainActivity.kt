@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource // CRITICAL IMPORT
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,29 +49,64 @@ fun MainScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // Logic Classes
     val logger = remember { Logger(context) }
     val credManager = remember { CredentialsManager(context) }
     val updater = remember { AppUpdater(context) }
 
-    // Get localized strings for dynamic logic
+    // --- STRINGS (Localized) ---
     val strLogsDefault = stringResource(R.string.logs_default)
     val strParsing = stringResource(R.string.parsing)
     val strScriptFinished = stringResource(R.string.script_finished)
     val strStart = stringResource(R.string.start_btn)
     val strRunning = stringResource(R.string.running_btn)
+    val strNoExcel = stringResource(R.string.no_excel)
+    val strUpload = stringResource(R.string.upload_btn)
+
+    // Update Dialog Strings
+    val strUpdateTitle = stringResource(R.string.update_title)
+    val strUpdateMsg = stringResource(R.string.update_msg)
+    val strDownloading = stringResource(R.string.downloading)
+    val strUpdateConfirm = stringResource(R.string.update_confirm)
+    val strCancel = stringResource(R.string.cancel)
 
     // --- UI STATES ---
     var logs by remember { mutableStateOf("$strLogsDefault\n") }
     var progress by remember { mutableFloatStateOf(0f) }
     var isRunning by remember { mutableStateOf(false) }
-    var userCountMsg by remember { mutableStateOf("") } // Intentionally empty initially
+    var userCountMsg by remember { mutableStateOf("") }
+
+    // --- UPDATE STATES ---
+    var updateAvailableUrl by remember { mutableStateOf<String?>(null) }
+    var isDownloading by remember { mutableStateOf(false) }
+    var downloadProgress by remember { mutableFloatStateOf(0f) }
 
     val scrollState = rememberScrollState()
 
+    // Current App Version
+    val currentVersionName = remember {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0"
+        } catch (e: Exception) { "1.0" }
+    }
+
+    // --- AUTO-UPDATE CHECK (Runs once when app opens) ---
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val url = updater.checkForUpdate(currentVersionName)
+            if (url != null) {
+                // If update found, show dialog
+                updateAvailableUrl = url
+            }
+        }
+    }
+
+    // Auto-scroll logs
     LaunchedEffect(logs) {
         scrollState.animateScrollTo(scrollState.maxValue)
     }
 
+    // File Picker
     val fileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -81,7 +116,6 @@ fun MainScreen() {
                 val count = credManager.parseExcelAndSave(uri)
                 withContext(Dispatchers.Main) {
                     if (count >= 0) {
-                        // Use context.getString for formatting parameters (%d)
                         userCountMsg = context.getString(R.string.excel_loaded, count)
                         logs += "System: $userCountMsg\n"
                     } else {
@@ -93,6 +127,7 @@ fun MainScreen() {
         }
     }
 
+    // --- UI LAYOUT ---
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -100,11 +135,7 @@ fun MainScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        UpdateCheckerSection(updater, context)
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // 1. Upload Button (Localized)
+        // 1. Upload Button
         Button(
             onClick = {
                 fileLauncher.launch(arrayOf(
@@ -115,12 +146,12 @@ fun MainScreen() {
             enabled = !isRunning,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(stringResource(R.string.upload_btn))
+            Text(strUpload)
         }
 
         // Status Text
         Text(
-            text = if (userCountMsg.isEmpty()) stringResource(R.string.no_excel) else userCountMsg,
+            text = if (userCountMsg.isEmpty()) strNoExcel else userCountMsg,
             fontSize = 12.sp,
             color = if (userCountMsg.contains("✅")) Color.Green else Color.Gray,
             modifier = Modifier.padding(bottom = 10.dp)
@@ -129,6 +160,7 @@ fun MainScreen() {
         Divider()
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Progress
         Text(text = "Progress: ${(progress * 100).toInt()}%")
         LinearProgressIndicator(
             progress = { progress },
@@ -140,7 +172,7 @@ fun MainScreen() {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Logcat
+        // Logcat Terminal
         Card(
             modifier = Modifier
                 .weight(1f)
@@ -165,7 +197,7 @@ fun MainScreen() {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // 2. Start Button (Localized)
+        // 2. Start Button
         Button(
             onClick = {
                 if (!isRunning) {
@@ -202,61 +234,31 @@ fun MainScreen() {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
 
-@Composable
-fun UpdateCheckerSection(updater: AppUpdater, context: android.content.Context) {
-    val scope = rememberCoroutineScope()
-    var updateAvailableUrl by remember { mutableStateOf<String?>(null) }
-    var isDownloading by remember { mutableStateOf(false) }
-    var downloadProgress by remember { mutableFloatStateOf(0f) }
+        Spacer(modifier = Modifier.height(8.dp))
 
-    val currentVersionName = remember {
-        try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0"
-        } catch (e: Exception) { "1.0" }
+        // Version Footer
+        Text(
+            text = "v$currentVersionName",
+            fontSize = 10.sp,
+            color = Color.Gray
+        )
     }
 
-    // Strings for logic
-    val strChecking = stringResource(R.string.checking)
-    val strLatest = stringResource(R.string.latest_version)
-    val strDownloadFail = "Download failed"
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("v$currentVersionName", fontSize = 12.sp, color = Color.Gray)
-
-        TextButton(onClick = {
-            scope.launch {
-                Toast.makeText(context, strChecking, Toast.LENGTH_SHORT).show()
-                val url = updater.checkForUpdate(currentVersionName)
-                if (url != null) {
-                    updateAvailableUrl = url
-                } else {
-                    Toast.makeText(context, strLatest, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }, enabled = !isDownloading) {
-            Text(stringResource(R.string.check_update))
-        }
-    }
-
+    // --- UPDATE DIALOG (Shows only if update found) ---
     if (updateAvailableUrl != null) {
         AlertDialog(
             onDismissRequest = { updateAvailableUrl = null },
-            title = { Text(stringResource(R.string.update_title)) },
+            title = { Text(strUpdateTitle) },
             text = {
                 if (isDownloading) {
                     Column {
-                        Text("${stringResource(R.string.downloading)} ${(downloadProgress * 100).toInt()}%")
+                        Text("$strDownloading ${(downloadProgress * 100).toInt()}%")
+                        Spacer(modifier = Modifier.height(8.dp))
                         LinearProgressIndicator(progress = { downloadProgress })
                     }
                 } else {
-                    Text(stringResource(R.string.update_msg))
+                    Text(strUpdateMsg)
                 }
             },
             confirmButton = {
@@ -264,6 +266,7 @@ fun UpdateCheckerSection(updater: AppUpdater, context: android.content.Context) 
                     Button(onClick = {
                         isDownloading = true
                         scope.launch {
+                            // Android 8+ Permission Check
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 if (!context.packageManager.canRequestPackageInstalls()) {
                                     val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
@@ -273,20 +276,26 @@ fun UpdateCheckerSection(updater: AppUpdater, context: android.content.Context) 
                                     return@launch
                                 }
                             }
+                            // Download
                             val file = updater.downloadApk(updateAvailableUrl!!) { p ->
                                 downloadProgress = p
                             }
+                            // Install
                             if (file != null) updater.installApk(file)
-                            else Toast.makeText(context, strDownloadFail, Toast.LENGTH_SHORT).show()
+                            else Toast.makeText(context, "Download failed", Toast.LENGTH_SHORT).show()
 
                             isDownloading = false
                             updateAvailableUrl = null
                         }
-                    }) { Text(stringResource(R.string.update_confirm)) }
+                    }) { Text(strUpdateConfirm) }
                 }
             },
             dismissButton = {
-                if (!isDownloading) TextButton(onClick = { updateAvailableUrl = null }) { Text(stringResource(R.string.cancel)) }
+                if (!isDownloading) {
+                    TextButton(onClick = { updateAvailableUrl = null }) {
+                        Text(strCancel)
+                    }
+                }
             }
         )
     }
